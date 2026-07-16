@@ -93,5 +93,24 @@ namespace Telesecundaria.Controllers
                 return StatusCode(500, new { mensaje = "Error interno del servidor.", detalle = ex.Message });
             }
         }
+
+        [HttpPatch("documentos/{claveDocAspirante}/corregir")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CorregirDocumentoRechazado(string claveDocAspirante, [FromForm] CorregirDocumentoRequestDTO dto)
+        {
+            try
+            {
+                var resultado = await _service.CorregirDocumentoRechazadoAsync(claveDocAspirante, dto.Archivo);
+                return Ok(resultado);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = "Error interno del servidor.", detalle = ex.Message });
+            }
+        }
     }
 }

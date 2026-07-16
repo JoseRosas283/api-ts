@@ -126,22 +126,21 @@ namespace Telesecundaria.Services.Implementations
             if (string.IsNullOrWhiteSpace(claveAspirante))
                 throw new ArgumentException("La clave del aspirante es obligatoria.");
 
-            var docs = await _repository.ObtenerDocumentosPorAspiranteAsync(claveAspirante);
+            var docs = await _repository.ObtenerDocumentosConEstatusAsync(claveAspirante);
 
             var documentosCargados = docs.Select(d => new DocumentoCargadoDTO
             {
                 ClaveDocAspirante = d.ClaveDocAspirante,
-                TipoDocumento = d.ClaveTipoDocumento,
-                RutaUrl = d.RutaArchivo
+                TipoDocumento = d.NombreTipoDocumento,
+                RutaUrl = d.RutaArchivo,
+                Estatus = d.Estatus
             }).ToList();
-
-            var completos = docs.Count >= TiposRequeridos.Count;
 
             return new EstadoDocumentosResponseDTO
             {
                 ClaveAspirante = claveAspirante,
                 DocumentosCargados = documentosCargados,
-                TodosCompletos = completos
+                TodosCompletos = docs.Count >= TiposRequeridos.Count
             };
         }
 
@@ -183,6 +182,26 @@ namespace Telesecundaria.Services.Implementations
                 ClaveAspirante = dto.ClaveAspirante,
                 EstatusGral = adjuncion?.EstatusGral ?? "Pendiente",
                 Documentos = documentosRespuesta
+            };
+        }
+
+        public async Task<CorregirDocumentoResponseDTO> CorregirDocumentoRechazadoAsync(string claveDocAspirante, IFormFile archivo)
+        {
+            if (string.IsNullOrWhiteSpace(claveDocAspirante))
+                throw new ArgumentException("La clave del documento es obligatoria.");
+            if (archivo == null || archivo.Length == 0)
+                throw new ArgumentException("El archivo es obligatorio.");
+            if (Path.GetExtension(archivo.FileName).ToLower() != ".pdf")
+                throw new ArgumentException("El archivo debe ser un PDF.");
+
+            var rutaNueva = await _pdfService.GuardarPdfAsync(archivo, "correccion");
+            await _repository.ActualizarRutaDocumentoRechazadoAsync(claveDocAspirante, rutaNueva);
+
+            return new CorregirDocumentoResponseDTO
+            {
+                ClaveDocAspirante = claveDocAspirante,
+                RutaUrl = rutaNueva,
+                Mensaje = "Documento corregido correctamente. Pendiente de nueva revisión."
             };
         }
     }

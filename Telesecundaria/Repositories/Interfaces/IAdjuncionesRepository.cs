@@ -12,5 +12,8 @@ namespace Telesecundaria.Repositories.Interfaces
 
         Task<List<DocumentosAspiranteEntity>> ObtenerDocumentosPorAspiranteAsync(string claveAspirante);
         Task<List<DocumentosAspiranteEntity>> ObtenerDocumentosSinDetalleAsync(string claveAspirante);
+
+        Task<List<DocumentoConEstatusProjection>> ObtenerDocumentosConEstatusAsync(string claveAspirante);
+        Task ActualizarRutaDocumentoRechazadoAsync(string claveDocAspirante, string nuevaRuta);
     }
 }

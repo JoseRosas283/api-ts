@@ -61,6 +61,8 @@ namespace Telesecundaria.Persistence
         public DbSet<PagosEntity> Pagos { get; set; }
         public DbSet<InscripcionesEntity> Inscripciones { get; set; }
 
+        public DbSet<RutaRechazadaEntity> RutasRechazadas { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -2397,6 +2399,58 @@ namespace Telesecundaria.Persistence
                       .HasForeignKey(e => e.ClavePago)
                       .HasConstraintName("fk_ins_pago")
                       .IsRequired(false);
+            });
+
+            modelBuilder.Entity<RutaRechazadaEntity>(entity =>
+            {
+                entity.ToTable("RutasRechazadas");
+                entity.HasKey(e => e.ClaveRuta);
+
+                entity.Property(e => e.ClaveRuta)
+                      .HasColumnName("claveRuta")
+                      .HasMaxLength(18)
+                      .HasDefaultValueSql("generar_clave_ruta_rechazada()")
+                      .ValueGeneratedOnAdd()
+                      .IsRequired();
+
+                entity.Property(e => e.ClaveAdjuncion)
+                      .HasColumnName("claveAdjuncion")
+                      .HasMaxLength(18)
+                      .IsRequired();
+
+                entity.Property(e => e.ClaveDocAspirante)
+                      .HasColumnName("claveDocAspirante")
+                      .HasMaxLength(18)
+                      .IsRequired();
+
+                entity.Property(e => e.ClaveRevision)
+                      .HasColumnName("claveRevision")
+                      .HasMaxLength(18)
+                      .IsRequired();
+
+                entity.Property(e => e.RutaArchivoRechazado)
+                      .HasColumnName("ruta_archivo_rechazado")
+                      .HasMaxLength(255)
+                      .IsRequired();
+
+                entity.Property(e => e.FechaRegistro)
+                      .HasColumnName("fecha_registro")
+                      .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.HasOne(e => e.Adjuncion)
+                      .WithMany()
+                      .HasForeignKey(e => e.ClaveAdjuncion)
+                      .HasConstraintName("fk_rutas_adjuncion");
+
+                entity.HasOne(e => e.DocumentoAspirante)
+                      .WithMany()
+                      .HasForeignKey(e => e.ClaveDocAspirante)
+                      .HasConstraintName("fk_rutas_documento");
+
+                entity.HasOne(e => e.Revision)
+                      .WithMany()
+                      .HasForeignKey(e => e.ClaveRevision)
+                      .HasConstraintName("fk_rutas_revision");
             });
         }
     }
