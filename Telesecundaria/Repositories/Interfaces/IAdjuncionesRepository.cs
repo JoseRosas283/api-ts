@@ -15,5 +15,7 @@ namespace Telesecundaria.Repositories.Interfaces
 
         Task<List<DocumentoConEstatusProjection>> ObtenerDocumentosConEstatusAsync(string claveAspirante);
         Task ActualizarRutaDocumentoRechazadoAsync(string claveDocAspirante, string nuevaRuta);
+
+        Task<List<DocumentosAspiranteEntity>> ObtenerDocumentosRechazadosAsync(string claveAspirante);
     }
 }
